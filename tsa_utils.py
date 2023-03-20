@@ -107,6 +107,45 @@ def find_item_by_type_path(node, type_path):
             return None
     return last_found
 
+def find_node_children_of_type(node, target_type):
+    logging.debug("find_children_of_type: %s", target_type)
+    return [x for x in node.children if x.type == target_type]
+
+def find_items_by_type_path(node, type_path):
+    logging.debug("find_items_by_type_path: %s", type_path)
+
+    def paths(tree):
+        if tree is None:
+            return([], [])
+        else:
+            root = tree
+            rooted_paths = [[root]]
+            unrooted_paths = []
+            for subtree in tree.children:
+                (useable, unuseable) = paths(subtree)
+                for path in useable:
+                    unrooted_paths.append(path)
+                    rooted_paths.append([root]+path)
+                for path in unuseable:
+                    unrooted_paths.append(path)
+            return (rooted_paths, unrooted_paths)
+
+    a,b = paths(node)
+    all_paths = a+b
+
+    results = []
+    for path in all_paths:
+        if len(path) == len(type_path):
+            found = True
+            for i in range(0, len(type_path)):
+                if path[i].type != type_path[i]:
+                    found = False
+            if found:
+                results.append(path)
+                logging.debug("  found matching path: %s", path)
+    return results
+
+
 def is_text_in_item(item, text):
     return (item and item.text.find(bytes(text, "utf8")) != -1)
 

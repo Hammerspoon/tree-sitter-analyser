@@ -44,10 +44,15 @@ def validate_checkArgs(parser, file_data):
         logging.debug("Examining Lua API function: %s %s", c_function_name(api), api.start_point)
         body = api.child_by_field_name("body")
 
-        msg_expr = find_item_by_type_path(body, ["expression_statement", "message_expression"])
-        contains_checkArgs = is_text_in_item(msg_expr, " checkArgs:")
-        if not contains_checkArgs:
+        checkArgsFound = False
+        msg_expr = find_items_by_type_path(body, ["expression_statement", "message_expression"])
+        for path in msg_expr:
+            if is_text_in_item(path[-1], " checkArgs:"):
+                checkArgsFound = True
+        if not checkArgsFound:
             logging.warning("%s is missing checkArgs", c_function_name(api))
+        else:
+            logging.info("%s passes checkArgs", c_function_name(api))
 
 
 def validate_file(parser, filepath):
