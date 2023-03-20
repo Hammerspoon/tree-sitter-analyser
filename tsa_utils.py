@@ -84,3 +84,29 @@ def is_lua_c_api_function(node):
 def get_lua_c_api_functions(root_node):
     return [x for x in find_c_functions(root_node) if is_lua_c_api_function(x)]
 
+# FIXME: This only finds the first item at each level, which is likely not useful in most cases
+def find_item_by_type_path(node, type_path):
+    logging.debug("find_item_by_type_path: %s", type_path)
+    result = None
+
+    to_search = node.children
+    last_found = None
+    while len(type_path) > 0:
+        found = False
+        target_type = type_path.pop(0)
+        logging.debug("  Next in path: %s", target_type)
+        for item in to_search:
+            logging.debug("    checking %s", item.type)
+            if item.type == target_type:
+                to_search = item.children
+                last_found = item
+                found = True
+                break
+        if not found:
+            logging.debug("find_item_by_type_path: Unable to find %s", target_type)
+            return None
+    return last_found
+
+def is_text_in_item(item, text):
+    return (item and item.text.find(bytes(text, "utf8")) != -1)
+
