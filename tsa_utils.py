@@ -20,7 +20,7 @@ def c_function_return_type(node):
     assert(is_c_function(node))
     return_type = node.child_by_field_name('type')
     assert(return_type)
-    return node.child_by_field_name('type')
+    return return_type
 
 def is_c_function_return_type(node, return_type):
     fn_return = c_function_return_type(node)
